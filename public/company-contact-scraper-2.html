@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Company Contact Scraper</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+    }
+    input, button {
+        padding: 10px;
+        font-size: 16px;
+    }
+    table {
+        margin-top: 20px;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background: #f2f2f2;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>Company Contact Scraper </h2>
+
+<input type="text" id="domainInput" placeholder="Enter domain (e.g. example.com)" size="40">
+<button onclick="searchContacts()">Search</button>
+
+<div id="output"></div>
+
+<script>
+async function searchContacts() {
+    const domain = document.getElementById("domainInput").value.trim();
+    const output = document.getElementById("output");
+
+    if (!domain) {
+        output.innerHTML = "<p style='color:red;'>Please enter a domain.</p>";
+        return;
+    }
+
+    output.innerHTML = "<p>Loading...</p>";
+
+    const url = `https://company-contact-scraper.p.rapidapi.com/search-by-domain?domain=${domain}&filter-personal-emails=false&email-limit=100&phone-limit=100`;
+
+    const options = {
+        method: "GET",
+        headers: {
+            "X-RapidAPI-Key": "675c994937mshfd6271df2d5eb64p147fd1jsn18283a4d2e5d",
+            "X-RapidAPI-Host": "company-contact-scraper.p.rapidapi.com"
+        }
+    };
+
+    try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        console.log(data);
+
+        if (!data || typeof data !== "object") {
+            output.innerHTML = "<p>No data found.</p>";
+            return;
+        }
+
+        let table = `
+            <table>
+                <tr><th>Field</th><th>Value</th></tr>
+        `;
+
+        // Convert nested objects/arrays to readable string
+        const formatValue = (val) => {
+            if (typeof val === "object") {
+                return "<pre>" + JSON.stringify(val, null, 2) + "</pre>";
+            }
+            return val;
+        };
+
+        for (let key in data) {
+            table += `
+                <tr>
+                    <td>${key}</td>
+                    <td>${formatValue(data[key])}</td>
+                </tr>
+            `;
+        }
+
+        table += "</table>";
+        output.innerHTML = table;
+
+    } catch (err) {
+        console.error(err);
+        output.innerHTML = "<p style='color:red;'>Error fetching data.</p>";
+    }
+}
+</script>
+
+</body>
+</html>

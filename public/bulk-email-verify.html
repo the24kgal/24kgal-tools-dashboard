@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verifier (Multiple Emails)</title>
+</head>
+<body>
+
+<h2>Email Verification </h2>
+
+<textarea id="emailInput" rows="6" cols="60"
+          placeholder="Enter multiple emails separated by commas"></textarea>
+<br><br>
+
+<button onclick="verifyEmails()">Verify Emails</button>
+
+<h3>Results:</h3>
+<pre id="outputBox" 
+     style="background:#f7f7f7; padding:15px; border:1px solid #ddd;"></pre>
+
+<script>
+async function verifyEmails() {
+    const input = document.getElementById("emailInput").value.trim();
+    const outputBox = document.getElementById("outputBox");
+
+    if (!input) {
+        outputBox.textContent = "Please enter emails separated by commas.";
+        return;
+    }
+
+    // Split user input into array of emails
+    const emails = input.split(",").map(email => email.trim()).filter(email => email.length > 0);
+
+    outputBox.textContent = "Verifying emails...\n\n";
+
+    const url = "https://email-verifier23.p.rapidapi.com/email-verify";
+
+    for (let email of emails) {
+        outputBox.textContent += `Checking: ${email}...\n`;
+
+        const options = {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                "x-rapidapi-key": "675c994937mshfd6271df2d5eb64p147fd1jsn18283a4d2e5d",
+                "x-rapidapi-host": "email-verifier23.p.rapidapi.com"
+            },
+            body: JSON.stringify({
+                email: email
+            })
+        };
+
+        try {
+            const response = await fetch(url, options);
+            const data = await response.json();
+
+            outputBox.textContent += `Result for ${email}:\n${JSON.stringify(data, null, 4)}\n\n`;
+
+        } catch (error) {
+            outputBox.textContent += `Error verifying ${email}: ${error}\n\n`;
+        }
+    }
+}
+</script>
+
+</body>
+</html>

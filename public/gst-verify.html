@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GST Details Lookup</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+    }
+    input, button {
+        padding: 10px;
+        font-size: 16px;
+    }
+    table {
+        margin-top: 20px;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background: #f2f2f2;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>GST Details Lookup </h2>
+
+<input type="text" id="gstInput" placeholder="Enter GSTIN (e.g. 27AABCI6363G3ZH)" size="40">
+<button onclick="getGSTDetails()">Search</button>
+
+<div id="output"></div>
+
+<script>
+async function getGSTDetails() {
+    const gst = document.getElementById("gstInput").value.trim();
+    const output = document.getElementById("output");
+
+    if (!gst) {
+        output.innerHTML = "<p style='color:red;'>Please enter a GST number.</p>";
+        return;
+    }
+
+    output.innerHTML = "<p>Loading...</p>";
+
+    const url = `https://gst-insights-api.p.rapidapi.com/getGSTDetailsUsingGST/${gst}`;
+
+    const options = {
+        method: "GET",
+        headers: {
+            "X-RapidAPI-Key": "675c994937mshfd6271df2d5eb64p147fd1jsn18283a4d2e5d",
+            "X-RapidAPI-Host": "gst-insights-api.p.rapidapi.com"
+        }
+    };
+
+    try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        console.log(data);
+
+        if (!data || typeof data !== "object") {
+            output.innerHTML = "<p>No data found.</p>";
+            return;
+        }
+
+        // Build table
+        let table = `
+            <table>
+                <tr><th>Field</th><th>Value</th></tr>
+        `;
+
+        for (let key in data) {
+            table += `
+                <tr>
+                    <td>${key}</td>
+                    <td>${typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key]}</td>
+                </tr>
+            `;
+        }
+
+        table += "</table>";
+
+        output.innerHTML = table;
+
+    } catch (error) {
+        console.error(error);
+        output.innerHTML = "<p style='color:red;'>Error fetching data.</p>";
+    }
+}
+</script>
+
+</body>
+</html>

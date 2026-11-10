@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+</head>
+<body>
+
+<h2>Email Verification</h2>
+
+<input type="text" id="emailInput" placeholder="Enter email to verify" size="40">
+<button onclick="verifyEmail()">Verify Email</button>
+
+<pre id="resultBox" style="background:#f3f3f3; padding:15px; margin-top:20px;"></pre>
+
+<script>
+async function verifyEmail() {
+    const email = document.getElementById("emailInput").value;
+    const resultBox = document.getElementById("resultBox");
+
+    if (!email) {
+        resultBox.textContent = "Please enter an email address.";
+        return;
+    }
+
+    const url = `https://global-email-v4.p.rapidapi.com/v4/WEB/GlobalEmail/doGlobalEmail?email=${encodeURIComponent(email)}&opt=VerifyMailbox:Express|VerifyMailbox:ExpressPremium&format=json`;
+
+    const options = {
+        method: 'GET',
+        headers: {
+            'x-rapidapi-key': '675c994937mshfd6271df2d5eb64p147fd1jsn18283a4d2e5d',
+            'x-rapidapi-host': 'global-email-v4.p.rapidapi.com'
+        }
+    };
+
+    try {
+        resultBox.textContent = "Verifying email...";
+
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        resultBox.textContent = JSON.stringify(data, null, 4);
+
+    } catch (error) {
+        console.error(error);
+        resultBox.textContent = "Error verifying email: " + error;
+    }
+}
+</script>
+
+</body>
+</html>

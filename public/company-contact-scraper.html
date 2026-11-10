@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Company Balance Sheet Lookup</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+    }
+    input, button {
+        padding: 10px;
+        font-size: 16px;
+    }
+    table {
+        margin-top: 20px;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background: #f2f2f2;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>Balance Sheet Lookup </h2>
+
+<input type="text" id="tickerInput" placeholder="Enter stock ticker (e.g. AAPL)" size="30">
+<button onclick="getBalanceSheet()">Search</button>
+
+<div id="output"></div>
+
+<script>
+async function getBalanceSheet() {
+    const ticker = document.getElementById("tickerInput").value.trim();
+    const output = document.getElementById("output");
+
+    if (!ticker) {
+        output.innerHTML = "<p style='color:red;'>Please enter a stock ticker.</p>";
+        return;
+    }
+
+    output.innerHTML = "<p>Loading...</p>";
+
+    const url = `https://financial-statements.p.rapidapi.com/api/v1/resources/balance-sheet?ticker=${ticker}`;
+
+    const options = {
+        method: "GET",
+        headers: {
+            "X-RapidAPI-Key": "675c994937mshfd6271df2d5eb64p147fd1jsn18283a4d2e5d",
+            "X-RapidAPI-Host": "financial-statements.p.rapidapi.com"
+        }
+    };
+
+    try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        console.log(data);
+
+        if (!Array.isArray(data) || data.length === 0) {
+            output.innerHTML = "<p>No balance sheet data found.</p>";
+            return;
+        }
+
+        // API returns an array → show first record (most recent balance sheet)
+        const record = data[0];
+
+        let table = `
+            <table>
+                <tr><th>Field</th><th>Value</th></tr>
+        `;
+
+        for (let key in record) {
+            table += `
+                <tr>
+                    <td>${key}</td>
+                    <td>${record[key]}</td>
+                </tr>
+            `;
+        }
+
+        table += "</table>";
+        output.innerHTML = table;
+
+    } catch (err) {
+        console.error(err);
+        output.innerHTML = "<p style='color:red;'>Error fetching data.</p>";
+    }
+}
+</script>
+
+</body>
+</html>

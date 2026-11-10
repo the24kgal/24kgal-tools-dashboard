@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Profile Picture Finder</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">WhatsApp Profile Picture Finder</h1>
+        
+        <p class="text-center text-gray-600 mb-6">
+            Enter a phone number to retrieve the profile picture from WhatsApp.
+        </p>
+
+        <div class="mb-6">
+            <label for="phoneInput" class="block text-sm font-medium text-gray-700 mb-2">Phone Number (with country code)</label>
+            <input type="text" id="phoneInput" placeholder="e.g., 34631428039" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200">
+        </div>
+
+        <div class="flex justify-center mb-6">
+            <button id="lookupButton" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-full shadow-md hover:bg-indigo-700 transition duration-300 ease-in-out transform hover:scale-105">
+                Get Profile Picture
+            </button>
+        </div>
+
+        <div id="resultContainer" class="mt-8 bg-gray-50 p-6 rounded-lg border border-gray-200 hidden">
+            <!-- Results will be displayed here -->
+            <p class="text-center text-gray-500">
+                Data will appear here after the search.
+            </p>
+        </div>
+
+        <div id="loadingIndicator" class="mt-8 text-center text-indigo-600 font-medium hidden">
+            <svg class="animate-spin h-5 w-5 text-indigo-500 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Fetching data...
+        </div>
+
+        <div id="errorContainer" class="mt-8 text-center text-red-500 font-medium hidden">
+            <!-- Errors will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const phoneInput = document.getElementById('phoneInput');
+        const lookupButton = document.getElementById('lookupButton');
+        const resultContainer = document.getElementById('resultContainer');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorContainer = document.getElementById('errorContainer');
+
+        // Function to display an error message
+        function displayError(message) {
+            errorContainer.textContent = `Error: ${message}`;
+            errorContainer.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            loadingIndicator.classList.add('hidden');
+        }
+
+        // Function to display the lookup results
+        function displayResults(data) {
+            // Assuming the API returns a base64 encoded image string
+            if (data && data.base64_image_string) {
+                resultContainer.classList.remove('hidden');
+                errorContainer.classList.add('hidden');
+                loadingIndicator.classList.add('hidden');
+
+                resultContainer.innerHTML = `
+                    <h2 class="text-2xl font-semibold text-center mb-4 text-gray-700">Profile Picture Found</h2>
+                    <div class="flex justify-center">
+                        <img src="data:image/jpeg;base64,${data.base64_image_string}" alt="WhatsApp Profile Picture" class="rounded-lg shadow-md max-w-full h-auto">
+                    </div>
+                `;
+            } else {
+                displayError("No profile picture found or API response was not in the expected format.");
+            }
+        }
+
+        // Add a click event listener to the button
+        lookupButton.addEventListener('click', () => {
+            const phoneNumber = phoneInput.value.trim();
+
+            if (!phoneNumber) {
+                displayError("Please enter a phone number.");
+                return;
+            }
+
+            // Show loading indicator and hide previous results/errors
+            loadingIndicator.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            errorContainer.classList.add('hidden');
+
+            const xhr = new XMLHttpRequest();
+            
+            // Use the new API endpoint and phone number from the input field
+            xhr.open('GET', `https://whatsapp-osint.p.rapidapi.com/wspic/b64?phone=${encodeURIComponent(phoneNumber)}`);
+            xhr.setRequestHeader('x-rapidapi-key', '4d24805173msh8bacb8c70b79406p156f40jsn9c2371036339');
+            xhr.setRequestHeader('x-rapidapi-host', 'whatsapp-osint.p.rapidapi.com');
+            
+            // Handle the response when the request is complete
+            xhr.onload = function() {
+                loadingIndicator.classList.add('hidden');
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        displayResults(response);
+                    } catch (e) {
+                        displayError("Failed to parse the JSON response from the API. It might be in an unexpected format.");
+                    }
+                } else {
+                    displayError(`Request failed with status code: ${xhr.status}. Check your API key and network connection.`);
+                }
+            };
+
+            // Handle network errors
+            xhr.onerror = function() {
+                loadingIndicator.classList.add('hidden');
+                displayError("A network error occurred. Please check your internet connection.");
+            };
+
+            // Send the request without a body for this specific endpoint
+            xhr.send();
+        });
+    </script>
+</body>
+</html>
