@@ -8,7 +8,8 @@ const tools = [
   { name: "GST Verify", url: "/gst-verify.html", description: "Verify Indian GST numbers" },
   { name: "Social Finder", url: "/social-finder.html", description: "Find social media profiles" },
   { name: "WhatsApp PP Finder", url: "/whatsapp-pp-finder.html", description: "Find WhatsApp profile pictures" },
-  { name: "Women Safety Project", url: "/women-safety-project.html", description: "Women's safety analysis tools" }
+  { name: "Women Safety Project", url: "/women-safety-project.html", description: "Women's safety analysis tools" },
+  { name: "LinkedIn Profile Search", url: "/linkedin-profile-search.html", description: "Extract detailed LinkedIn profile information" }
 ];
 
 const Home: NextPage = () => {
