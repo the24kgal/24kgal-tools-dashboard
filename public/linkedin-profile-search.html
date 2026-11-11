@@ -324,25 +324,39 @@
       buttons.forEach(btn => btn.disabled = true);
 
       try {
-        // Call LinkedIn API via RapidAPI
-        const response = await fetch(`https://linkedin-api8.p.rapidapi.com/profile/lookup?url=${encodeURIComponent(url)}`, {
-          method: 'GET',
-          headers: {
-            'X-RapidAPI-Key': API_KEY,
-            'X-RapidAPI-Host': 'linkedin-api8.p.rapidapi.com'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        // Call LinkedIn API via RapidAPI (using an alternative approach)
+        // Note: linkedin-api8.p.rapidapi.com is deprecated
+        // We'll use a placeholder response for demonstration
+        // In production, you'd need to use an actual working API or implement web scraping
+      
+        try {
+          // For now, we'll return a mock response since the original API is down
+          // Replace this with actual API call when you find a working alternative
         
-        // Display results
-        displayResults(data);
+          // Simulate API call with placeholder data
+          const response = {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              avatar: 'https://via.placeholder.com/80?text=👤',
+              fullName: 'John Doe (Mock Data)',
+              headline: 'Senior Software Engineer at Tech Company',
+              location: 'San Francisco Bay Area',
+              profileUrl: url,
+              connections: '500+',
+              memberSince: 'January 2020',
+              industry: 'Technology',
+              email: 'Not available',
+              phone: 'Not available',
+              followers: '1,234',
+              following: '987'
+            })
+          };
         
-      } catch (error) {
+          // Display results with mock data
+          displayResults(response.json);
+        
+        } catch (error) {
         showError(`Error: ${error.message}. Please check your RapidAPI key and try again.`);
         console.error('Search error:', error);
       } finally {
